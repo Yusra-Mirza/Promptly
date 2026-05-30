@@ -10,7 +10,12 @@
     "start": "nodemon BackEnd/server.js"
   },
   "dependencies": {
+    "@chakra-ui/react": "^2.10.9",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
     "dotenv": "^17.4.2",
-    "express": "^5.2.1"
+    "express": "^5.2.1",
+    "framer-motion": "^12.40.0",
+    "mongoose": "^9.6.3"
   }
 }
