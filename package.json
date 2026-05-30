@@ -1,0 +1,16 @@
+{
+  "name": "promptly",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "Yusra",
+  "type": "commonjs",
+  "main": "server.js",
+  "scripts": {
+    "start": "nodemon BackEnd/server.js"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1"
+  }
+}
