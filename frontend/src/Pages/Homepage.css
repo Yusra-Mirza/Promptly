@@ -1,0 +1,69 @@
+.homepage-container{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width:100%;
+    max-width: 450px;
+    margin:0 auto;
+}
+
+.brand-header-box{
+    display: flex;
+    justify-content: center;
+    padding: 12px;
+    background-color: white;
+    width: 100%;
+    margin:40px 0 15px 0;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+}
+
+.brand-title{
+    font-size: 2.25rem;
+    font-family: 'Work Sans', sans-serif;
+    color:black;
+    margin: 0;
+}
+
+.required-star{
+    color:#e53e3e;
+    margin-left: 3px;
+}
+
+.auth-card {
+    background-color: white;
+    width: 100%;
+    padding: 24px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    box-sizing: border-box;
+}
+
+.tab-switcher {
+    display: flex;
+    margin-bottom: 20px;
+    gap: 10px;
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    background: transparent;
+    font-family: 'Work Sans', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 9999px;
+    transition: all 0.2s ease-in-out;
+    color: #4a5568;
+}
+
+.tab-btn.active {
+    background-color: #e0f2fe;
+    color: #2b6cb0;
+}
+
+.form-container {
+    padding-top: 10px;
+}
