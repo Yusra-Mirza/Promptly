@@ -4,18 +4,20 @@ const userSchema = new mongoose.Schema(
     name: {
       type: String,
       required: true,
+      
     },
     email: {
       type: String,
       required: true,
+      unique: true,
     },
     password: {
-      name: String,
+      type: String,
       required: true,
     },
     pic: {
       type: String,
-      required: true,
+
       default: "https://cdn-icons-png.flaticon.com/512/149/149071.png",
     },
   },
