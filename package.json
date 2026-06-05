@@ -4,7 +4,7 @@
   "description": "",
   "license": "ISC",
   "author": "Yusra",
-  "type": "commonjs",
+  "type": "module",
   "main": "server.js",
   "scripts": {
     "start": "nodemon BackEnd/server.js"
