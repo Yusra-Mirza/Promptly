@@ -25,15 +25,22 @@ const registerUser=asyncHandler(async(req,res)=>{
         password,
         pic,
     });
-
+    const {accessToken,refreshToken}=generateToken(user._id);
     
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
     if(user){
         res.status(201).json({
             _id:user._id,
             name:user.name,
             email:user.email,
             pic:user.pic,
-            token:generateToken(user._id),
+            accessToken,
         });
     }
     else{
@@ -41,7 +48,33 @@ const registerUser=asyncHandler(async(req,res)=>{
     }
 });
 
-export default registerUser;
+const authUser=asyncHandler(async(req,res)=>{
+    const {email,password}=req.body;
+    const user=await User.findOne({email});
+    if(user && (await user.matchPassword(password))){
+        const {accessToken,refreshToken}=generateToken(user._id);
+        res.cookie("refreshToken", refreshToken, {
+          httpOnly: true,
+          secure: true,
+          sameSite: "strict",
+          maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        });
+        res.status(200).json({
+            message:"User authenticated",
+            accessToken,
+           
+        });
+
+    }
+    else{
+        res.status(401);
+        throw new Error("Invalid Email or Password");
+    }
+
+});
+
+
+export {registerUser,authUser};
 
 
 

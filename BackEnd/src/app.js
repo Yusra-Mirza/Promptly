@@ -11,12 +11,7 @@ app.get("/", (req, res) => {
 
 app.use("/api/user",router);
 
+app.use(notFound);
+app.use(errorHandler);
 
-// app.use((err, req, res, next) => {
-//   const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
-//   res.status(statusCode).json({
-//     message: err.message,
-//     stack: err.stack, // This will print the exact line causing the hidden issue directly into Postman!
-//   });
-// });
 export default app;
