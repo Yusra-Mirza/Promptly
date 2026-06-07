@@ -1,6 +1,6 @@
 import express from "express";
 import router from "./routes/userRoutes.js";
-
+import {notFound,errorHandler} from "./middleware/errorMiddleware.js";
 const app = express();
 
 import chats from "./data/data.js";
