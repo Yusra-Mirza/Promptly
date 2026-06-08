@@ -3,6 +3,7 @@ import asyncHandler from "express-async-handler";
 import User from "../Models/userModel.js";
 import generateToken from "../config/generateToken.js";
 import jwt from "jsonwebtoken";
+import config from "../config/config.js";
 const { JsonWebTokenError } = jwt;
 const registerUser=asyncHandler(async(req,res)=>{
     console.log("Request hit the register route");
@@ -106,7 +107,20 @@ const refreshAccessToken=asyncHandler(async (req,res)=>{
     }
 
 });
-export {registerUser,authUser};
 
+
+//api/user?search=yusra
+const  allUsers=asyncHandler (async (req,res)=> {
+    const keyword=req.query.search ? {
+        $or:[
+            {name:{$regex:req.query.search,$options:"i"}},
+            {email:{$regex:req.query.search,$options:"i"}},
+        ],
+    }
+    :{};
+    const users= await User.find(keyword).find({_id:{$ne: req.user._id}});
+     res.send(users);   
+});
+export {registerUser,authUser,refreshAccessToken,allUsers};
 
 

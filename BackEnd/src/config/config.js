@@ -1,5 +1,6 @@
 import dotenv from "dotenv";
 dotenv.config();
+// console.log("Config MONGO_URI:", process.env.MONGO_URI);
 const config={
     PORT:process.env.PORT||8000,
     MONGO_URI:process.env.MONGO_URI,
