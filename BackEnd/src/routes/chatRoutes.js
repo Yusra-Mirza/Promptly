@@ -1,6 +1,7 @@
 import express from "express";
 import { protect } from "../middleware/authMiddleware.js";
 const router=express.Router();
+import { accessChat } from "../controllers/chatControllers.js";
 router.post("/",protect,accessChat);
 // router.get("/",protect,fetchChats);
 // router.post("/group",protect,createGroupChat);

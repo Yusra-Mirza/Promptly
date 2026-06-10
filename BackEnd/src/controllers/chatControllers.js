@@ -2,19 +2,50 @@ import mongoose from "mongoose";
 import asyncHandler from "express-async-handler";
 import User from "../Models/userModel.js";
 
-import Chat from "../Models/chatModel.js"
-const accessChat=asyncHandler(async(req,res)=>{
-    const {userId}=req.body;
-    if(!userID){
-        console.log("UserId param not sent with request");
-        return res.sendStatus(400);
-    }
+import Chat from "../Models/chatModel.js";
+const accessChat = asyncHandler(async (req, res) => {
+  const { userId } = req.body;
+  if (!userId) {
+    console.log("UserId param not sent with request");
+    return res.sendStatus(400);
+  }
 
-    let isChat= await chats.find({
-        isGroupChat:false,
-        $and:[
-            {users:{$elemMatch:{$eq:req.user._id}}},
-            {users:{$elemMatch:{$eq:userId}}},
-        ],
-    }).populate("users","-password").populate("latestMessage");
+  let isChat = await Chat
+    .find({
+      isGroupChat: false,
+      $and: [
+        { users: { $elemMatch: { $eq: req.user._id } } },
+        { users: { $elemMatch: { $eq: userId } } },
+      ],
+    })
+    .populate("users", "-password")
+    .populate("latestMessage");
+
+  isChat = await User.populate(isChat, {
+    path: "latestMessage.sender",
+    select: "name pic email",
+  });
+
+  if (isChat.length > 0) {
+    res.send(isChat[0]);
+  } else {
+    const chatData = {
+      chatName: "sender",
+      isGroupChat: false,
+      users: [req.user._id, userId],
+    };
+    try {
+      const createdChat = await Chat.create(chatData);
+      const fullChat = await Chat.findOne({ _id: createdChat._id }).populate(
+        "users",
+        "-password",
+      );
+      res.status(201).json(fullChat);
+    } catch (err) {
+      res.status(400);
+      throw new Error(err.message);
+    }
+  }
 });
+
+export {accessChat};
