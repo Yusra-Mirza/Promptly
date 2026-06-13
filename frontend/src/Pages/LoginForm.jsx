@@ -1,13 +1,14 @@
 import "./SignUpForm.css"; // Reusing your existing form styles
 import { useState } from "react";
 import axios from "axios";
+import { useHistory } from "react-router-dom";
 
 export default function LoginForm() {
     const [showPassword, setShowPassword] = useState(false);
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
-
+    const history=useHistory();
     const submitHandler = async () => {
         if (!email || !password) {
             alert("Please fill in all required fields!");
@@ -33,8 +34,7 @@ export default function LoginForm() {
             localStorage.setItem("userInfo", JSON.stringify(data));
             setLoading(false);
             alert("Login Successful!");
-            
-            // TODO: Redirect user to the chat page here next!
+            history.push("/chats");
         } catch (error) {
             console.log("Error during login:", error.response.data.message);
             alert(error.response.data.message || "Invalid Email or Password!");
