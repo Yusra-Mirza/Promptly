@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useHistory } from "react-router-dom"; 
-import axios from "axios"; // Add this line to handle HTTP requests
+import axios from "axios"; 
 import { 
   Box, 
   Text, 
@@ -25,6 +25,9 @@ import {
   DrawerOverlay, 
   DrawerContent, 
   Input,         
+  useToast,
+  Skeleton, 
+  Stack     
 } from "@chakra-ui/react";
 import { FaSearch } from "react-icons/fa"; 
 import { ChatState } from "../../context/chatProvider";
@@ -36,15 +39,53 @@ const SideDrawer = () => {
   const [loading, setLoading] = useState(false);
   const [loadingChat, setLoadingChat] = useState(false);
   
-  const { isOpen, onOpen, onClose } = useDisclosure(); // Profile Modal Controls
-  const { isOpen: isDrawerOpen, onOpen: onDrawerOpen, onClose: onDrawerClose } = useDisclosure(); // Left Drawer Controls
-  
-  const { user } = ChatState();
+  const { isOpen, onOpen, onClose } = useDisclosure(); 
+  const { isOpen: isDrawerOpen, onOpen: onDrawerOpen, onClose: onDrawerClose } = useDisclosure(); 
+  const toast = useToast(); 
   const history = useHistory(); 
-  const toast = useToast(); // Initialize the toast notification engine
+  const { user } = ChatState();
+
   const logoutHandler = () => {
     localStorage.removeItem("userInfo"); 
     history.push("/"); 
+  };
+
+  const handleSearch = async () => {
+    if (!search) {
+      toast({
+        title: "Please Enter something in search",
+        status: "warning",
+        duration: 5000,
+        isClosable: true,
+        position: "top-left",
+      });
+      return; 
+    }
+
+    try {
+      setLoading(true);
+      // console.log("FRONTEND SECURITY CHECK -> USER TOKEN:", user?.accessToken);
+      const config = {
+        headers: {
+          Authorization: `Bearer ${user.accessToken}`,
+        },
+      };
+
+      // FIXED: Safely wrapped in backticks (``) instead of quotes for string template literal evaluation
+      const { data } = await axios.get(`/api/user?search=${search}`, config);
+
+      setLoading(false);
+      setSearchResult(data);
+    } catch (error) {
+      toast({
+        title: "Error Occured!",
+        description: "Failed to Load the Search Results",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom-left",
+      });
+    }
   };
 
   return (
@@ -58,9 +99,8 @@ const SideDrawer = () => {
         p="5px 10px 5px 10px"
         borderWidth="1px"
       >
-        {/* LEFT SIDE: SEARCH AREA */}
+        {/* LEFT PILLAR: SEARCH TRIGGER */}
         <Tooltip label="Search Users to chat with" hasArrow placement="bottom-end">
-          {/* Added onClick here to run our onDrawerOpen function! */}
           <Button variant="ghost" onClick={onDrawerOpen}>
             <FaSearch />
             <Text display={{ base: "none", md: "flex" }} px="4">
@@ -69,15 +109,14 @@ const SideDrawer = () => {
           </Button>
         </Tooltip>
 
-        {/* CENTER: LOGO */}
+        {/* CENTER PILLAR: BRAND LOGO */}
         <Text fontSize="2xl" fontFamily="Work sans">
           Promptly
         </Text>
 
-        {/* RIGHT SIDE: SETTINGS CONTROLS */}
+        {/* RIGHT PILLAR: CONTROLS TRAY */}
         <Box display="flex" alignItems="center">
           
-          {/* 1. NOTIFICATION DROPDOWN */}
           <Menu>
             <MenuButton p={1}>
               <BellIcon fontSize="2xl" m={1} />
@@ -85,7 +124,6 @@ const SideDrawer = () => {
             <MenuList></MenuList> 
           </Menu>
 
-          {/* 2. USER PROFILE DROPDOWN */}
           <Menu>
             <MenuButton as={Button} bg="white" rightIcon={<ChevronDownIcon />}>
               <Avatar
@@ -105,7 +143,7 @@ const SideDrawer = () => {
         </Box>
       </Box>
 
-      {/* PROFILE VIEW MODAL POPUP */}
+      {/* COMPONENT POPUP: CENTERED USER BADGE PROFILE CARD */}
       <Modal isOpen={isOpen} onClose={onClose} isCentered>
         <ModalOverlay />
         <ModalContent>
@@ -129,7 +167,7 @@ const SideDrawer = () => {
         </ModalContent>
       </Modal>
 
-      {/* NEW: THE SLIDING LEFT SEARCH DRAWER PANEL */}
+      {/* COMPONENT SLIDE: LEFT SEARCH SIDEBAR PANEL */}
       <Drawer placement="left" onClose={onDrawerClose} isOpen={isDrawerOpen}>
         <DrawerOverlay />
         <DrawerContent>
@@ -142,8 +180,34 @@ const SideDrawer = () => {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
-              <Button colorScheme="teal">Go</Button>
+              <Button colorScheme="teal" onClick={handleSearch}>Go</Button>
             </Box>
+
+            {/* SKELETON PLACEHOLDERS VS REAL DB SEARCH DATA MAPPING */}
+            {loading ? (
+              <Stack>
+                <Skeleton height="45px" borderRadius="lg" />
+                <Skeleton height="45px" borderRadius="lg" />
+                <Skeleton height="45px" borderRadius="lg" />
+                <Skeleton height="45px" borderRadius="lg" />
+                <Skeleton height="45px" borderRadius="lg" />
+              </Stack>
+            ) : (
+              searchResult?.map((searchedUser) => (
+                <Box
+                  key={searchedUser._id}
+                  p={2}
+                  bg="gray.100"
+                  mb={2}
+                  borderRadius="md"
+                  _hover={{ bg: "teal.500", color: "white" }}
+                  cursor="pointer"
+                >
+                  <Text fontWeight="bold">{searchedUser.name}</Text>
+                  <Text fontSize="xs">Email: {searchedUser.email}</Text>
+                </Box>
+              ))
+            )}
           </DrawerBody>
         </DrawerContent>
       </Drawer>
