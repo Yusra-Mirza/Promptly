@@ -63,9 +63,12 @@ const authUser=asyncHandler(async(req,res)=>{
           maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
         });
         res.status(200).json({
-            message:"User authenticated",
-            accessToken,
-           
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          isAdmin: user.isAdmin,
+          pic: user.pic,
+          accessToken,
         });
 
     }

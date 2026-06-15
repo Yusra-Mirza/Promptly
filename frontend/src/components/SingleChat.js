@@ -2,7 +2,10 @@ import React from "react";
 import { Box, Text, IconButton } from "@chakra-ui/react";
 import { ArrowBackIcon } from "@chakra-ui/icons";
 import { ChatState } from "../context/chatProvider"; // Double check if your folder is capitalized 'Context' or lowercase 'context'
+import {ProfileModal} from "./miscellaneous/ProfileModal.js";
 
+import {getSender,getSenderFull} from "../config/chatLogics";
+import UpdateGroupChatModal from "./miscellaneous/UpdateGroupChatModal.js";
 const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const { selectedChat, setSelectedChat, user } = ChatState();
 
@@ -32,14 +35,14 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
             {!selectedChat.isGroupChat ? (
               <>
                 {/* 1-on-1 Private DMs: Compares IDs to hide your own name */}
-                {selectedChat.users[0]._id === user._id
-                  ? selectedChat.users[1].name
-                  : selectedChat.users[0].name}
+                {getSender(user, selectedChat.users)};
+                <ProfileModal user={getSenderFull(user, selectedChat.users)} />
               </>
             ) : (
               <>
                 {/* Group Chats: Simply prints the room name in all uppercase */}
                 {selectedChat.chatName.toUpperCase()}
+                <UpdateGroupChatModal fetchAgain={fetchAgain} setFetchAgain={setFetchAgain}/>
               </>
             )}
           </Text>
