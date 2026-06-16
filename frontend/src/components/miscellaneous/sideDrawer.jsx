@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useHistory } from "react-router-dom"; 
-import axios from "axios"; 
+import axios from "axios";  
 import { 
   Box, 
   Text, 
@@ -43,11 +43,41 @@ const SideDrawer = () => {
   const { isOpen: isDrawerOpen, onOpen: onDrawerOpen, onClose: onDrawerClose } = useDisclosure(); 
   const toast = useToast(); 
   const history = useHistory(); 
-  const { user } = ChatState();
-
+  const { user, setSelectedChat, chats, setChats } = ChatState(); 
   const logoutHandler = () => {
     localStorage.removeItem("userInfo"); 
     history.push("/"); 
+  };
+
+  const accessChat=async(userId)=>{
+    console.log("🔥 CLICK DETECTED! accessChat is running for ID:", userId);
+    try{
+      setLoading(true);
+      const config={
+        headers:{
+          Authorization:`Bearer ${user.accessToken}`,
+        }
+      };
+      const { data } = await axios.post("/api/chat", { userId }, config);
+
+      if(!(chats.find((c)=>c._id===data._id))){
+        setChats([...chats,data]);
+      }
+      setSelectedChat(data);
+      setLoading(false);
+      onDrawerClose();
+    }
+    catch(error){
+      toast({
+        title:"Error fetching chats",
+        description:error.message,
+        status:"error",
+        duration:5000,
+        isClosable:true,
+        position:"bottom-left",
+      });
+      setLoadingChat(false);
+    }
   };
 
   const handleSearch = async () => {
@@ -196,6 +226,7 @@ const SideDrawer = () => {
               searchResult?.map((searchedUser) => (
                 <Box
                   key={searchedUser._id}
+                  onClick={()=> accessChat(searchedUser._id)}
                   p={2}
                   bg="gray.100"
                   mb={2}

@@ -1,14 +1,85 @@
 import React from "react";
-import { Box, Text, IconButton } from "@chakra-ui/react";
+import { Box, Text, IconButton, FormControl } from "@chakra-ui/react";
 import { ArrowBackIcon } from "@chakra-ui/icons";
 import { ChatState } from "../context/chatProvider"; // Double check if your folder is capitalized 'Context' or lowercase 'context'
 import {ProfileModal} from "./miscellaneous/ProfileModal.js";
-
+import { useState } from "react";
 import {getSender,getSenderFull} from "../config/chatLogics";
 import UpdateGroupChatModal from "./miscellaneous/UpdateGroupChatModal.js";
+import axios from "axios";
+import { useToast,Spinner,Input} from "@chakra-ui/react";
+import {ScrollableChat} from "./ScrollableChat.js";
+import { useEffect } from "react";
 const SingleChat = ({ fetchAgain, setFetchAgain }) => {
+  const [messages,setMessages]=useState([]);
+  const [loading,setLoading]=useState(false);
+  const [newMessage,setNewMessage]=useState(""); 
   const { selectedChat, setSelectedChat, user } = ChatState();
+  const toast=useToast();
+  const fetchMessages=async()=>{
+    if(!selectedChat) return;
+    try{
+         const config = {
+           headers: {         
+             authorization: `Bearer ${user.accessToken}`,
+           },
+         };
 
+         setLoading(true);
+         const {data}=await axios.get(`/api/message/${selectedChat._id}`,config);
+         console.log(messages);
+         setMessages(data);
+         setLoading(false);
+    }
+    catch(err){
+       toast({
+         title: "Error Occured",
+         description: "Failed to Load Messages",
+         status: "error",
+         duration: 5000,
+         isClosable: true,
+         position: "bottom",
+       });
+    }
+  }
+  useEffect(()=>{
+    fetchMessages();
+  },[selectedChat]);
+  const sendMessage=async (e)=>{
+    if(e.key=="Enter" && newMessage){
+      try{
+        const config={
+          headers:{
+            "Content-Type":"application/json",
+            "authorization":`Bearer ${user.accessToken}`
+          },
+        };
+       
+        const {data}= await axios.post("/api/message/",{
+          content:newMessage,
+          chatId:selectedChat._id,
+        },config);
+        // console.log(data);
+         setNewMessage("");
+        setMessages([...messages,data]);
+      }
+
+      catch(err){
+        toast({
+          title:"Error Occured",
+          description:"Failed to send the Message",
+          status:"error",
+          duration:5000,
+          isClosable:true,
+          position:"bottom",
+        });
+      }
+    }
+  };
+  const typingHandler=((e)=>{
+    setNewMessage(e.target.value);
+    //Typing Indicator Logic
+  });
   return (
     <>
       {selectedChat ? (
@@ -35,14 +106,18 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
             {!selectedChat.isGroupChat ? (
               <>
                 {/* 1-on-1 Private DMs: Compares IDs to hide your own name */}
-                {getSender(user, selectedChat.users)};
+                {getSender(user, selectedChat.users)}
                 <ProfileModal user={getSenderFull(user, selectedChat.users)} />
               </>
             ) : (
               <>
                 {/* Group Chats: Simply prints the room name in all uppercase */}
                 {selectedChat.chatName.toUpperCase()}
-                <UpdateGroupChatModal fetchAgain={fetchAgain} setFetchAgain={setFetchAgain}/>
+                <UpdateGroupChatModal
+                  fetchAgain={fetchAgain}
+                  setFetchAgain={setFetchAgain}
+                  fetchMessages={fetchMessages}
+                />
               </>
             )}
           </Text>
@@ -59,10 +134,41 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
             borderRadius="lg"
             overflowY="hidden"
           >
-            {/* Real-time message streaming feed loops will be wired right here next */}
-            <Text alignSelf="center" margin="auto">
-              Messages will stream here!
-            </Text>
+            {loading ? (
+              <Spinner
+                size="xl"
+                w={20}
+                h={20}
+                alignSelf="center"
+                margin="auto"
+              />
+            ) : (
+              <Box
+                display="flex"
+                flexDirection="column"
+                overflowY="scroll"
+                scrollbarWidth="none" // Hides scrollbar on Firefox
+                sx={{
+                  "&::-webkit-scrollbar": {
+                    display: "none", // Hides scrollbar on Chrome, Safari, and Edge
+                  },
+                }}
+                w="100%"
+                h="100%"
+                p={3}
+              >
+                <ScrollableChat messages={messages}/>
+              </Box>
+            )}
+            <FormControl onKeyDown={sendMessage} isRequired mt={3}>
+              <Input
+                variant="filled"
+                bg="#E0E0E0"
+                placeholder="Enter a Message"
+                onChange={typingHandler}
+                value={newMessage}
+              />
+            </FormControl>
           </Box>
         </>
       ) : (
