@@ -31,7 +31,7 @@ io.on("connection",(Socket)=>{
   Socket.on ('join chat',(room)=>{
     Socket.join(room);
     console.log("User Joined Room: "+room);
-  })
+  });
 
   Socket.on('new message',(newMessageReceived)=>{
     let chat=newMessageReceived.chat;
@@ -43,5 +43,17 @@ io.on("connection",(Socket)=>{
       Socket.in(user._id).emit("message received",newMessageReceived);
     });
 
+  });
+  Socket.on('typing',(room)=>{
+    Socket.in(room).emit("typing");
+  });
+  Socket.on("stop typing",(room)=>{
+    Socket.in(room).emit("stop typing");
   })
+
+  Socket.off("setup",()=>{
+    console.log("USER DISCONNECTED");
+    Socket.leave(userData._id);
+  })
+
 })

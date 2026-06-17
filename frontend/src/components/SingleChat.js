@@ -11,6 +11,8 @@ import { useToast,Spinner,Input} from "@chakra-ui/react";
 import io from "socket.io-client";
 import {ScrollableChat} from "./ScrollableChat.js";
 import { useEffect } from "react";
+import { DotLottieReact } from "@lottiefiles/dotlottie-react";
+import typingAnimation from "../animations/typing.json";
 const ENDPOINT="http://localhost:8000";
 let socket,selectedChatCompare;
 const SingleChat = ({ fetchAgain, setFetchAgain }) => {
@@ -19,6 +21,8 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const [newMessage, setNewMessage] = useState("");
   const { selectedChat, setSelectedChat, user } = ChatState();
   const [socketConnected, setSocketConnected] = useState(false);
+  const [typing,setTyping]=useState(false);
+  const [isTyping,setIsTyping]=useState(false);
   const toast = useToast();
   const fetchMessages = async () => {
     if (!selectedChat) return;
@@ -55,6 +59,8 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     socket = io(ENDPOINT);
     socket.emit("setup", user);
     socket.on("Connected", () => setSocketConnected(true));
+    socket.on("typing",()=>setIsTyping(true));
+    socket.on("stop typing",()=>setIsTyping(false));
   }, []);
 
   useEffect(() => {
@@ -83,7 +89,9 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     };
   }, [messages]); // ✅ Triggers safely only when a new message alters the state array
   const sendMessage = async (e) => {
+
     if (e.key == "Enter" && newMessage) {
+      socket.emit('stop typing',selectedChat._id);
       try {
         const config = {
           headers: {
@@ -119,7 +127,21 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
 
   const typingHandler = (e) => {
     setNewMessage(e.target.value);
-    //Typing Indicator Logic
+    if (!socket) return;
+    if(!typing){
+      setTyping(true);
+      socket.emit("typing",selectedChat._id);
+    }
+    let lastTypingTime=new Date().getTime();
+    let timerLength=3000;
+    setTimeout(()=>{
+      let timeNow=new Date().getTime();
+      let timeDiff=timeNow-lastTypingTime;
+      if(timeDiff>=timerLength && typing){
+        socket.emit("stop typing",selectedChat._id);
+        setTyping(false);
+      }
+    },timerLength);
   };
   return (
     <>
@@ -202,6 +224,24 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
               </Box>
             )}
             <FormControl onKeyDown={sendMessage} isRequired mt={3}>
+              {isTyping ? (
+                <div
+                  style={{
+                    marginBottom: 15,
+                    marginLeft: 10,
+                    width: "70px",
+                    height: "35px",
+                  }}
+                >
+                  <DotLottieReact
+                    data={typingAnimation} 
+                    loop
+                    autoplay
+                  />
+                </div>
+              ) : (
+                <></>
+              )}
               <Input
                 variant="filled"
                 bg="#E0E0E0"
