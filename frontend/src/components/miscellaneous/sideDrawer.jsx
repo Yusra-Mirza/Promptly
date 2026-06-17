@@ -32,7 +32,8 @@ import {
 import { FaSearch } from "react-icons/fa"; 
 import { ChatState } from "../../context/chatProvider";
 import { BellIcon, ChevronDownIcon } from "@chakra-ui/icons"; 
-
+// import NotificationBadge from "react-notification-badge";
+// import { Effect } from "react-notification-badge";
 const SideDrawer = () => {
   const [search, setSearch] = useState("");
   const [searchResult, setSearchResult] = useState([]);
@@ -43,14 +44,14 @@ const SideDrawer = () => {
   const { isOpen: isDrawerOpen, onOpen: onDrawerOpen, onClose: onDrawerClose } = useDisclosure(); 
   const toast = useToast(); 
   const history = useHistory(); 
-  const { user, setSelectedChat, chats, setChats } = ChatState(); 
+  const { user, setSelectedChat, chats, setChats,notification ,setNotification } = ChatState(); 
   const logoutHandler = () => {
     localStorage.removeItem("userInfo"); 
     history.push("/"); 
   };
 
   const accessChat=async(userId)=>{
-    console.log("🔥 CLICK DETECTED! accessChat is running for ID:", userId);
+    
     try{
       setLoading(true);
       const config={
