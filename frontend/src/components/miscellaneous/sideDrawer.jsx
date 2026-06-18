@@ -143,7 +143,7 @@ const SideDrawer = () => {
         </Tooltip>
 
         {/* CENTER PILLAR: BRAND LOGO */}
-        <Text fontSize="2xl" fontFamily="Work sans">
+        <Text fontSize="4xl" fontFamily="'Outfit', sans-serif" fontWeight="bold" color="#1d9bf0">
           Promptly
         </Text>
 
