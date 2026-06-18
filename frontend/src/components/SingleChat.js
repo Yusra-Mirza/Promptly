@@ -75,7 +75,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     fetchMessages();
     selectedChatCompare = selectedChat;
   }, [selectedChat]);
-
+  console.log(notification,"------------");
   //no dependency array runs everytime
   useEffect(() => {
     if (!socket) return; // Prevent crashes if the socket hasn't booted up yet

@@ -32,6 +32,7 @@ import {
 import { FaSearch } from "react-icons/fa"; 
 import { ChatState } from "../../context/chatProvider";
 import { BellIcon, ChevronDownIcon } from "@chakra-ui/icons"; 
+import { getSender } from "../../config/chatLogics";
 // import NotificationBadge from "react-notification-badge";
 // import { Effect } from "react-notification-badge";
 const SideDrawer = () => {
@@ -41,6 +42,7 @@ const SideDrawer = () => {
   const [loadingChat, setLoadingChat] = useState(false);
   
   const { isOpen, onOpen, onClose } = useDisclosure(); 
+  
   const { isOpen: isDrawerOpen, onOpen: onDrawerOpen, onClose: onDrawerClose } = useDisclosure(); 
   const toast = useToast(); 
   const history = useHistory(); 
@@ -150,9 +152,40 @@ const SideDrawer = () => {
           
           <Menu>
             <MenuButton p={1}>
+              <Box position="relative" display="inline-block"> {/* Adds local context box boundary */}
               <BellIcon fontSize="2xl" m={1} />
+              {notification.length>0 && (
+      <Box
+        position="absolute"
+        top="2px"
+        right="2px"
+        bg="red.500"
+        color="white"
+        borderRadius="full"
+        w="18px"
+        h="18px"
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        fontSize="10px"
+        fontWeight="bold"
+      >
+        {notification.length}
+      </Box>)}
+      </Box>
             </MenuButton>
-            <MenuList></MenuList> 
+
+            <MenuList pl={2}>
+              {!notification.length && "No New Messages"}
+              {notification.map(notif=>(
+                <MenuItem key={notif._id} onClick={()=>{setSelectedChat(notif.chat);
+                  setNotification(notification.filter((n)=>n!==notif));
+                }}
+                >
+                  {notif.chat.isGroupChat?`New Message in ${notification.chat.chatName}`:`New Message from ${getSender(user,notif.chat.users)}`}
+                </MenuItem>
+              ))}
+            </MenuList> 
           </Menu>
 
           <Menu>
