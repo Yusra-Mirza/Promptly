@@ -3,6 +3,7 @@ import Message from "../Models/messageModel.js";
 import Chat from "../Models/chatModel.js";
 import { protect } from "../middleware/authMiddleware.js";
 import User from "../Models/userModel.js";
+import Notification from "../Models/notificationModel.js";
 export const sendMessage=asyncHandler(async (req,res)=>{
     const {content,chatId}=req.body;
     if(!content || !chatId){
@@ -28,7 +29,22 @@ export const sendMessage=asyncHandler(async (req,res)=>{
         await Chat.findByIdAndUpdate(req.body.chatId,{
             latestMessage:message,
         });
-        res.json(message);
+        
+        const fullChat = message.chat;
+        const trackingNotification = fullChat.users
+          .filter((userId) => userId.toString() != req.user._id.toString())
+          .map((recipientId) => ({
+            user: recipientId,
+            chat: chatId,
+            message: message._id,
+          }));
+          if (trackingNotification.length > 0) {
+            await Notification.insertMany(trackingNotification);
+          }
+
+
+
+          res.json(message);
 
     }catch(err){
         res.status(400);
@@ -36,6 +52,11 @@ export const sendMessage=asyncHandler(async (req,res)=>{
     }
 
 });
+
+
+
+
+
 
 export const allMessages=asyncHandler(async (req,res)=>{
     try{
