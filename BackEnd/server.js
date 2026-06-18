@@ -45,10 +45,10 @@ io.on("connection",(Socket)=>{
 
   });
   Socket.on('typing',(room)=>{
-    Socket.in(room).emit("typing");
+    Socket.in(room).emit("typing",{room});
   });
   Socket.on("stop typing",(room)=>{
-    Socket.in(room).emit("stop typing");
+    Socket.in(room).emit("stop typing", { room });
   })
 
   Socket.off("setup",()=>{

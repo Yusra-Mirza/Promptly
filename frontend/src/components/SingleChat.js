@@ -12,6 +12,7 @@ import io from "socket.io-client";
 import {ScrollableChat} from "./ScrollableChat.js";
 import { useEffect } from "react";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
+
 import typingAnimation from "../animations/typing.json";
 const ENDPOINT="http://localhost:8000";
 let socket,selectedChatCompare;
@@ -19,10 +20,10 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [newMessage, setNewMessage] = useState("");
-  const { selectedChat, setSelectedChat, user } = ChatState();
+  const { selectedChat, setSelectedChat, user, notification,setNotification } = ChatState();
   const [socketConnected, setSocketConnected] = useState(false);
   const [typing,setTyping]=useState(false);
-  const [isTyping,setIsTyping]=useState(false);
+  const [isTyping,setIsTyping]=useState({roomId:null});
   const toast = useToast();
   const fetchMessages = async () => {
     if (!selectedChat) return;
@@ -59,8 +60,15 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     socket = io(ENDPOINT);
     socket.emit("setup", user);
     socket.on("Connected", () => setSocketConnected(true));
-    socket.on("typing",()=>setIsTyping(true));
-    socket.on("stop typing",()=>setIsTyping(false));
+    socket.on("typing",(data)=>setIsTyping({roomId:data.room}));
+    socket.on("stop typing",(data)=>setIsTyping({roomId:null}));
+
+    return ()=>{
+      socket.off("Connected");
+      socket.off("typing");
+      socket.off("stop typing");
+      socket.disconnect();
+    }
   }, []);
 
   useEffect(() => {
@@ -77,7 +85,11 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         !selectedChatCompare ||
         selectedChatCompare._id !== newMessageReceived.chat._id
       ) {
-        // give notification logic goes here
+        if(!notification.includes(newMessageReceived)){
+          setNotification([newMessageReceived,...notification]);
+          setFetchAgain(!fetchAgain);
+        }
+
       } else {
         setMessages([...messages, newMessageReceived]);
       }
@@ -92,6 +104,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
 
     if (e.key == "Enter" && newMessage) {
       socket.emit('stop typing',selectedChat._id);
+      setTyping(false);
       try {
         const config = {
           headers: {
@@ -224,7 +237,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
               </Box>
             )}
             <FormControl onKeyDown={sendMessage} isRequired mt={3}>
-              {isTyping ? (
+              {isTyping.roomId===selectedChat._id ? (
                 <div
                   style={{
                     marginBottom: 15,
