@@ -51,9 +51,8 @@ io.on("connection",(Socket)=>{
     Socket.in(room).emit("stop typing", { room });
   })
 
-  Socket.off("setup",()=>{
+  Socket.on("disconnect", () => {
     console.log("USER DISCONNECTED");
-    Socket.leave(userData._id);
-  })
+  });
 
 })

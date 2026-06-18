@@ -32,9 +32,9 @@ export const sendMessage=asyncHandler(async (req,res)=>{
         
         const fullChat = message.chat;
         const trackingNotification = fullChat.users
-          .filter((userId) => userId.toString() != req.user._id.toString())
-          .map((recipientId) => ({
-            user: recipientId,
+          .filter((u) => u._id.toString() != req.user._id.toString())
+          .map((recipient) => ({
+            user: recipient._id,
             chat: chatId,
             message: message._id,
           }));

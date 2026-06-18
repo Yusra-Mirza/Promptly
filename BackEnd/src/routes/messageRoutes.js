@@ -1,7 +1,7 @@
  import express from "express";
  import { sendMessage } from "../controllers/messageControllers.js";
  import { allMessages } from "../controllers/messageControllers.js";
- const router=express();
+ const router=express.Router();
 import { protect } from "../middleware/authMiddleware.js";
  //for sending message
  router.post("/",protect,sendMessage);

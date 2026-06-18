@@ -102,8 +102,8 @@ const MyChats = ({ fetchAgain }) => {
                 onClick={() => setSelectedChat(chat)}
                 cursor="pointer"
                 // Changes container color if it matches the active selected conversation item
-                bg={selectedChat === chat ? "#38B2AC" : "#E8E8E8"}
-                color={selectedChat === chat ? "white" : "black"}
+                bg={selectedChat?._id === chat._id ? "#38B2AC" : "#E8E8E8"}
+                color={selectedChat?._id === chat._id ? "white" : "black"}
                 px={3}
                 py={2}
                 borderRadius="lg"
