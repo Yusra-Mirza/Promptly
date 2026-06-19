@@ -3,6 +3,8 @@ import { useState } from "react";
 import axios from "axios";
 import { useHistory } from "react-router-dom";
 import { ChatState } from "../context/chatProvider";
+import { useToast } from "@chakra-ui/react";
+
 export default function LoginForm() {
     const [showPassword, setShowPassword] = useState(false);
     const [email, setEmail] = useState("");
@@ -10,9 +12,17 @@ export default function LoginForm() {
     const [loading, setLoading] = useState(false);
     const history=useHistory();
     const {setUser}=ChatState();
+    const toast = useToast();
+
     const submitHandler = async () => {
         if (!email || !password) {
-            alert("Please fill in all required fields!");
+            toast({
+                title: "Please fill in all required fields!",
+                status: "warning",
+                duration: 5000,
+                isClosable: true,
+                position: "bottom",
+            });
             return;
         }
 
@@ -35,11 +45,24 @@ export default function LoginForm() {
             localStorage.setItem("userInfo", JSON.stringify(data));
             setUser(data);
             setLoading(false);
-            alert("Login Successful!");
+            toast({
+                title: "Login Successful!",
+                status: "success",
+                duration: 5000,
+                isClosable: true,
+                position: "bottom",
+            });
             history.push("/chats");
         } catch (error) {
            const errorMessage = error.response?.data?.message || "Something went wrong. Please try again!"
-            alert(errorMessage);
+            toast({
+                title: "Error Occurred!",
+                description: errorMessage,
+                status: "error",
+                duration: 5000,
+                isClosable: true,
+                position: "bottom",
+            });
             setLoading(false);
         }
     };

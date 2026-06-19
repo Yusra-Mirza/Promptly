@@ -1,12 +1,14 @@
 import "./SignUpForm.css";
 import {useState} from "react";
 import axios from "axios";
+import { useToast } from "@chakra-ui/react";
+
 export default function SignUpForm(){
     const [showPassword,setShowPassword]=useState(false);
     const [showConfirmPassword,setShowConfirmPassword]=useState(false);
     const [pic,setPic]=useState();
     const [picLoading,setPicLoading]=useState(false);
-
+    const toast = useToast();
 
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
@@ -40,12 +42,24 @@ export default function SignUpForm(){
     //Added the backend submit function right here
     const submitHandler = async () => {
         if (!name || !email || !password || !confirmPassword) {
-            alert("Please fill in all required fields!");
+            toast({
+                title: "Please fill in all required fields!",
+                status: "warning",
+                duration: 5000,
+                isClosable: true,
+                position: "bottom",
+            });
             return;
         }
 
         if (password !== confirmPassword) {
-            alert("Passwords do not match!");
+            toast({
+                title: "Passwords do not match!",
+                status: "warning",
+                duration: 5000,
+                isClosable: true,
+                position: "bottom",
+            });
             return;
         }
 
@@ -65,10 +79,23 @@ export default function SignUpForm(){
 
             console.log("Registration Successful!", data);
             localStorage.setItem("userInfo", JSON.stringify(data));
-            alert("Signup Successful!");
+            toast({
+                title: "Registration Successful!",
+                status: "success",
+                duration: 5000,
+                isClosable: true,
+                position: "bottom",
+            });
         } catch (error) {
             console.log("Error during registration:", error.response.data.message);
-            alert(error.response.data.message || "Something went wrong!");
+            toast({
+                title: "Error Occurred!",
+                description: error.response.data.message || "Something went wrong!",
+                status: "error",
+                duration: 5000,
+                isClosable: true,
+                position: "bottom",
+            });
         }
     };
     return(
