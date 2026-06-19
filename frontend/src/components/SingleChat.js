@@ -14,7 +14,7 @@ import { useEffect } from "react";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 
 import typingAnimation from "../animations/typing.json";
-const ENDPOINT="http://localhost:8000";
+const ENDPOINT = process.env.NODE_ENV === "production" ? "/" : "http://localhost:8000";
 let socket,selectedChatCompare;
 const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const [messages, setMessages] = useState([]);
