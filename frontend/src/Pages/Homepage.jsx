@@ -14,7 +14,7 @@ const Homepage = () => {
     <div className="brand-header-box">
       <h1 className="brand-title">Promptly</h1>
     </div>
-    <div class="auth-card">
+    <div className="auth-card">
       <div className="tab-switcher">
         <button className={`tab-btn ${activeTab==='login' ? 'active':' '}`} onClick={()=> setActiveTab('login')}>
           Login
