@@ -72,7 +72,7 @@ export default function SignUpForm(){
 
             // Sending data + the image link to your backend folder
             const { data } = await axios.post(
-                "/api/user",
+                "/api/user/register",
                 { name, email, password, pic },
                 config
             );
